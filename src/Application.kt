@@ -34,6 +34,12 @@ fun main(args: Array<String>){
             val response: HttpResponse = httpClient.get("https://api.telegram.org/bot$botToken/getMe")
             println(response.readText())
             sendMessageToDevGroup("Link Start!")
+            sendMessageToDevGroup(AppCenterCrashData(
+                    name = "No Such Filed girlFriend Found in Object cinit",
+                    reason = "决明",
+                    url = "https://github.com/cinit",
+                    app_version = "NaN"
+            ))
         }
     }catch (e:Exception) {
         println(e)
@@ -120,7 +126,7 @@ suspend fun sendMessageToDevGroup(msg:String) {
         contentType(ContentType.Application.Json)
         body = mapOf(
                 "chat_id" to "-1001186899631",
-                "parse_mode" to "MarkdownV2",
+                "parse_mode" to "Markdown",
                 "text" to msg
         )
     }
@@ -129,6 +135,7 @@ suspend fun sendMessageToDevGroup(msg:String) {
 
 suspend fun sendMessageToDevGroup(msg:MarkdownAble) {
     sendMessageToDevGroup(msg.toMarkdown())
+    //println(msg.toMarkdown())
 }
 
 fun getHttpClientWithGson():HttpClient {
