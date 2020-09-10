@@ -9,6 +9,7 @@ import io.ktor.gson.*
 import io.ktor.features.*
 import io.ktor.client.*
 import io.ktor.client.engine.apache.*
+import me.singleNeuron.data.GithubWebHookData
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
@@ -33,7 +34,9 @@ fun Application.module(testing: Boolean = false) {
             call.respond(mapOf("hello" to "world"))
         }
         post("/webhook/github") {
-            call.application.environment.log.debug(call.receiveText())
+            //val string = call.receiveText()
+            val data = call.receive<GithubWebHookData>()
+            call.application.environment.log.debug(data.toString())
             call.respond("success")
         }
         post("/webhook/appcenter") {
