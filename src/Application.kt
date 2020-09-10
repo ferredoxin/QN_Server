@@ -108,7 +108,9 @@ fun Application.module(testing: Boolean = false) {
             val data = call.receive<AppCenterCrashData>()
             log.debug(data.toString())
             call.respond("")
-            sendMessageToDevGroup(data)
+            if(Regex("me|nil|nadph", RegexOption.IGNORE_CASE).containsMatchIn(data.toString())) {
+                sendMessageToDevGroup(data)
+            }
         }
         post("/webhook/appcenter/distribute"){
             val log = call.application.environment.log
