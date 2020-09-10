@@ -9,7 +9,10 @@ import io.ktor.gson.*
 import io.ktor.features.*
 import io.ktor.client.*
 import io.ktor.client.engine.apache.*
+import io.ktor.client.request.*
+import io.ktor.client.statement.*
 import me.singleNeuron.data.GithubWebHookData
+import java.io.File
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
@@ -22,9 +25,6 @@ fun Application.module(testing: Boolean = false) {
         }
     }
 
-    val client = HttpClient(Apache) {
-    }
-
     routing {
         get("/") {
             call.respondText("HELLO WORLD!", contentType = ContentType.Text.Plain)
@@ -34,10 +34,36 @@ fun Application.module(testing: Boolean = false) {
             call.respond(mapOf("hello" to "world"))
         }
         post("/webhook/github") {
+            val log = call.application.environment.log
             //val string = call.receiveText()
             val data = call.receive<GithubWebHookData>()
-            call.application.environment.log.debug(data.toString())
+            log.debug(data.toString())
             call.respond("success")
+            if (data.ref=="refs/heads/master") {
+                for (commit in data.commits) {
+                    for (string in commit.modified) {
+                        if (string=="CardMsgBlackList.json") {
+                            log.debug("start downloading: ")
+                            val httpClient = HttpClient()
+                            val response: HttpResponse = httpClient.get("https://raw.githubusercontent.com/cinit/QNotified/master/CardMsgBlackList.json")
+                            log.debug("downloading: ${response.status}")
+                            if (response.status.isSuccess()) {
+                                val json = response.readText()
+                                val file = File("~/CardMsgBlackList.json")
+                                if (!file.exists()) {
+                                    if (!file.createNewFile()) {
+                                        log.debug("File Create Failed")
+                                        return@post
+                                    }
+                                }
+                                file.writeText(json)
+                            }
+                            httpClient.close()
+                            return@post
+                        }
+                    }
+                }
+            }
         }
         post("/webhook/appcenter") {
             call.application.environment.log.debug(call.receiveText())
