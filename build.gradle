@@ -5,6 +5,7 @@ buildscript {
     
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath 'com.github.jengelman.gradle.plugins:shadow:2.0.4'
     }
 }
 
@@ -13,7 +14,16 @@ apply plugin: 'application'
 
 group 'me.singleNeuron'
 version '0.0.1'
+
 mainClassName = "io.ktor.server.netty.EngineMain"
+
+apply plugin: 'com.github.johnrengelman.shadow'
+
+shadowJar {
+    manifest {
+        attributes 'Main-Class': mainClassName
+    }
+}
 
 sourceSets {
     main.kotlin.srcDirs = main.java.srcDirs = ['src']

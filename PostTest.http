@@ -1,4 +1,4 @@
-POST http://127.0.0.1:8080/webhook/github
+POST http://ioctl.cc:10492/webhook/github
 Content-Type: application/json
 
 {"snippet": {"text" : "mysnippet"}}
