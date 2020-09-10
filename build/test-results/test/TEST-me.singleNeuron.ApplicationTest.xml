@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="me.singleNeuron.ApplicationTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2020-09-10T13:26:33" hostname="Neuron" time="1.204">
-  <properties/>
-  <testcase name="testRoot" classname="me.singleNeuron.ApplicationTest" time="1.204"/>
-  <system-out><![CDATA[2020-09-10 15:26:34.032 [Test worker] INFO  ktor.test - No ktor.deployment.watch patterns specified, automatic reload is not active
-]]></system-out>
-  <system-err><![CDATA[]]></system-err>
-</testsuite>
