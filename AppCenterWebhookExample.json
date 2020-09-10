@@ -1,0 +1,52 @@
+{
+    "app_name": "myFirstApp",
+    "branch": "master",
+    "build_status": "Succeeded",
+    "build_id": "33",
+    "build_link": "https://appcenter.ms/users/{user-id}/apps/{app-name}/build/branches/master/builds/33",
+    "build_reason": "manual",
+    "finish_time": "2018-06-14T23:59:05.2542221Z",
+    "icon_link": "https://appcenter-filemanagement-distrib4ede6f06e.azureedge.net/f7794e4c-42f1-4e7c-8013-07ed2e1b733d/ic_launcher.png?sv=2020-02-18&sr=c&sig=gs4JfcWjpKeYH%2F%2Fg0jEtSKKbeRkug9q%2FldslmzzeOg0%3D&se=2020-02-26T08%3A57%3A58Z&sp=r",
+    "notification_settings_link": "https://appcenter.ms/users/{user-id}/apps/{app-name}/settings/notifications",
+    "os": "iOS",
+    "start_time": "2018-06-14T23:57:03.4379381Z",
+    "source_version": "55820a357ba26831f2eeb3be9973a4ef20618b73",
+    "sent_at": "2018-06-14T23:59:08.4897604Z"
+  }
+  {
+    "id":"3698593379u",
+    "name":"android.app.Activity.performResume (Activity.java:5084)",
+    "reason":"android.app.SuperNotCalledException",
+    "url":"https://appcenter.ms/orgs/{org-id}/apps/{app-name}/crashes/errors/3698273379u",
+    "app_display_name":"{app-name}",
+    "app_platform":"Java",
+    "app_version":"2.0.1(42)",
+    "stack_trace":[],
+    "affected_users":0,
+    "crash_count":0,
+    "sent_at":"2019-05-16T23:47:31.4881512Z",
+    "app_id":"48573473-f069-4715-8bab-9ae42cec48b2"
+  }
+  {
+    "app_name":"{app-name}",
+    "app_display_name":"{app-display-name}",
+    "release_id":"123",
+    "platform":"Android",
+    "uploaded_at":"2018-07-17T20:46:14Z",
+    "fingerprint":"0abed1269e4ae3bf524e4cc7165f4f34",
+    "release_notes":"",
+    "version":"74",
+    "short_version":"1.7.0",
+    "min_os":"4.0.3",
+    "mandatory_update":true,
+    "size":2634279,
+    "provisioning_profile_name":null,
+    "provisioning_profile_type":null,
+    "bundle_identifier":"com.microsoft.appcenter.test",
+    "install_link":"https://install.appcenter.ms/orgs/{org-name}/apps/{app-name}/releases/123?source=email",
+    "icon_link":"https://appcenter-filemanagement-distrib4ede6f06e.azureedge.net/f7794e4c-42f1-4e7c-8013-07ed2e1b733d/ic_launcher.png?sv=2020-02-18&sr=c&sig=gs4JfcWjpKeYH%2F%2Fg0jEtSKKbeRkug9q%2FldslmzzeOg0%3D&se=2020-02-26T08%3A57%3A58Z&sp=r",
+    "distribution_group_id":"1a5a0605-4b9c-4de2-9a35-t569456df0cc",
+    "installable":true,
+    "sent_at":"2019-05-16T23:20:08.7799314Z",
+    "app_id":"f37c6194-9ac9-4504-be61-55re334r5649"
+  }

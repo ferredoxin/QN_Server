@@ -9,12 +9,37 @@ import io.ktor.gson.*
 import io.ktor.features.*
 import io.ktor.client.*
 import io.ktor.client.engine.apache.*
+import io.ktor.client.features.json.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
-import me.singleNeuron.data.GithubWebHookData
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
+import me.singleNeuron.base.MarkdownAble
+import me.singleNeuron.data.appcenter.AppCenterBuildData
+import me.singleNeuron.data.github.GithubWebHookData
+import me.singleNeuron.me.singleNeuron.data.appcenter.AppCenterCrashData
+import me.singleNeuron.me.singleNeuron.data.appcenter.AppCenterDistributeData
 import java.io.File
+import java.util.*
 
-fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
+private lateinit var botToken:String
+
+fun main(args: Array<String>){
+    print("请输入Telegram Bot Token: ")
+    try {
+        botToken = readLine()?:""
+        GlobalScope.launch {
+            val httpClient = HttpClient()
+            val response: HttpResponse = httpClient.get("https://api.telegram.org/bot$botToken/getMe")
+            println(response.readText())
+            sendMessageToDevGroup("Link Start!")
+        }
+    }catch (e:Exception) {
+        println(e)
+    }
+    io.ktor.server.netty.EngineMain.main(args)
+}
 
 @Suppress("unused") // Referenced in application.conf
 @kotlin.jvm.JvmOverloads
@@ -28,10 +53,6 @@ fun Application.module(testing: Boolean = false) {
     routing {
         get("/") {
             call.respondText("HELLO WORLD!", contentType = ContentType.Text.Plain)
-        }
-
-        get("/json/gson") {
-            call.respond(mapOf("hello" to "world"))
         }
         post("/webhook/github") {
             val log = call.application.environment.log
@@ -67,10 +88,54 @@ fun Application.module(testing: Boolean = false) {
                 }
             }
         }
-        post("/webhook/appcenter") {
-            call.application.environment.log.debug(call.receiveText())
-            call.respond("success")
+        post("/webhook/appcenter/build") {
+            val log = call.application.environment.log
+            //val string = call.receiveText()
+            val data = call.receive<AppCenterBuildData>()
+            log.debug(data.toString())
+            call.respond("")
+            sendMessageToDevGroup(data)
+        }
+        post("/webhook/appcenter/crash") {
+            val log = call.application.environment.log
+            //val string = call.receiveText()
+            val data = call.receive<AppCenterCrashData>()
+            log.debug(data.toString())
+            call.respond("")
+            sendMessageToDevGroup(data)
+        }
+        post("/webhook/appcenter/distribute"){
+            val log = call.application.environment.log
+            //val string = call.receiveText()
+            val data = call.receive<AppCenterDistributeData>()
+            log.debug(data.toString())
+            call.respond("")
         }
     }
 }
 
+suspend fun sendMessageToDevGroup(msg:String) {
+    val httpClient = getHttpClientWithGson()
+    val response: HttpResponse = httpClient.post("https://api.telegram.org/bot$botToken/sendMessage"){
+        contentType(ContentType.Application.Json)
+        body = mapOf(
+                "chat_id" to "-1001186899631",
+                "parse_mode" to "MarkdownV2",
+                "text" to msg
+        )
+    }
+    println(response.readText())
+}
+
+suspend fun sendMessageToDevGroup(msg:MarkdownAble) {
+    sendMessageToDevGroup(msg.toMarkdown())
+}
+
+fun getHttpClientWithGson():HttpClient {
+    return HttpClient(Apache){
+        install(JsonFeature) {
+            serializer = GsonSerializer {
+            }
+        }
+    }
+}

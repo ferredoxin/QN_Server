@@ -1,4 +1,4 @@
-package me.singleNeuron.data
+package me.singleNeuron.data.github
 
 data class GithubCommitData(
         val modified: Array<String> = arrayOf(),

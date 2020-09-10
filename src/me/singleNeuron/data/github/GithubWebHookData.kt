@@ -1,4 +1,4 @@
-package me.singleNeuron.data
+package me.singleNeuron.data.github
 
 data class GithubWebHookData(
         val ref:String = "",
