@@ -49,7 +49,7 @@ fun Application.module(testing: Boolean = false) {
                             log.debug("downloading: ${response.status}")
                             if (response.status.isSuccess()) {
                                 val json = response.readText()
-                                val file = File("~/CardMsgBlackList.json")
+                                val file = File("/root/CardMsgBlackList.json")
                                 if (!file.exists()) {
                                     if (!file.createNewFile()) {
                                         log.debug("File Create Failed")
@@ -57,6 +57,8 @@ fun Application.module(testing: Boolean = false) {
                                     }
                                 }
                                 file.writeText(json)
+                                log.debug("File download Success")
+                                log.debug(json)
                             }
                             httpClient.close()
                             return@post
