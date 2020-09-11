@@ -32,6 +32,7 @@ import me.singleNeuron.me.singleNeuron.data.appcenter.AppCenterCrashData
 import me.singleNeuron.me.singleNeuron.data.appcenter.AppCenterDistributeData
 import org.slf4j.Logger
 import java.io.File
+import kotlin.system.exitProcess
 
 private lateinit var dir:File
 private lateinit var commitHistoryFile: File
@@ -98,8 +99,13 @@ fun Application.module(testing: Boolean = false) {
             log.debug(data.toString())
             call.respond("success")
             if (data.repository.full_name=="singleNeuron/QN_Server") {
-                Runtime.getRuntime().exec("sh /root/QN_Server/UpdateServer.sh")
-                System.exit(0)
+                ProcessBuilder("sh","/root/QN_Server/UpdateServer.sh")
+                        .directory(File("/root"))
+                        .redirectInput(ProcessBuilder.Redirect.INHERIT)
+                        .redirectOutput(ProcessBuilder.Redirect.INHERIT)
+                        .redirectErrorStream(true)
+                        .start()
+                exitProcess(0)
             }
             if (data.ref=="refs/heads/master") {
                 for (commit in data.commits) {
