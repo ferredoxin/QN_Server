@@ -71,11 +71,11 @@ fun main(args: Array<String>){
                     app_version = "NaN"
             ))
             httpClient.close()
+            io.ktor.server.netty.EngineMain.main(args)
         }
     }catch (e:Exception) {
         println(e)
     }
-    io.ktor.server.netty.EngineMain.main(args)
 }
 
 @KtorExperimentalAPI
@@ -100,7 +100,7 @@ fun Application.module(testing: Boolean = false) {
             call.respond("success")
             if (data.repository.full_name=="singleNeuron/QN_Server") {
                 ProcessBuilder("sh","/root/QN_Server/UpdateServer.sh")
-                        .directory(File("/root"))
+                        .directory(File("/root/QN_Server"))
                         .redirectInput(ProcessBuilder.Redirect.INHERIT)
                         .redirectOutput(ProcessBuilder.Redirect.INHERIT)
                         .redirectErrorStream(true)
@@ -264,7 +264,7 @@ suspend fun uploadFileToTaichi(file:File,log:String,logger:Logger) {
             logger.debug("Upload failed: $uploadData")
         }
     } else {
-        logger.debug("Login failed: ${loginResponse.toString()}\n${loginResponse.readText()}")
+        logger.debug("Login failed: $loginResponse\n${loginResponse.readText()}")
     }
     httpClient.close()
 }
