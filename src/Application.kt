@@ -1,5 +1,6 @@
 package me.singleNeuron
 
+import com.google.gson.Gson
 import io.ktor.application.*
 import io.ktor.response.*
 import io.ktor.request.*
@@ -25,17 +26,17 @@ import me.singleNeuron.data.appcenter.AppCenterBuildData
 import me.singleNeuron.data.github.GithubWebHookData
 import me.singleNeuron.data.taichi.TaichiAddData
 import me.singleNeuron.data.taichi.TaichiUploadData
+import me.singleNeuron.me.singleNeuron.data.LocalParam
 import me.singleNeuron.me.singleNeuron.data.appcenter.AppCenterCheckUpdateData
 import me.singleNeuron.me.singleNeuron.data.appcenter.AppCenterCrashData
 import me.singleNeuron.me.singleNeuron.data.appcenter.AppCenterDistributeData
 import org.slf4j.Logger
 import java.io.File
 
-private lateinit var botToken:String
 private lateinit var dir:File
 private lateinit var commitHistoryFile: File
-private lateinit var taichiUsername: String
-private lateinit var taichiPassword: String
+
+private lateinit var localParam: LocalParam
 
 fun main(args: Array<String>){
     dir = File("/root/QNotified_release")
@@ -43,15 +44,23 @@ fun main(args: Array<String>){
     commitHistoryFile = File(dir.absolutePath+File.separator+"CommitHistory.txt")
     if (!commitHistoryFile.exists()) commitHistoryFile.createNewFile()
     try {
-        print("请输入太极后台用户名: ")
-        taichiUsername = readLine()?:""
-        print("请输入太极后台密码: ")
-        taichiPassword = readLine()?:""
-        print("请输入Telegram Bot Token: ")
-        botToken = readLine()?:""
+        val localParamFile = File("/root/QN_Server_Local.json")
+        if (!localParamFile.exists()) {
+            localParamFile.createNewFile()
+            localParam = LocalParam()
+            print("请输入太极后台用户名: ")
+            localParam.taichiUsername = readLine()
+            print("请输入太极后台密码: ")
+            localParam.taichiPassword = readLine()
+            print("请输入Telegram Bot Token: ")
+            localParam.botToken = readLine()
+            localParamFile.writeText(Gson().toJson(localParam))
+        }else {
+            localParam = Gson().fromJson(localParamFile.readText(),LocalParam::class.java)
+        }
         GlobalScope.launch {
             val httpClient = HttpClient()
-            val response: HttpResponse = httpClient.get("https://api.telegram.org/bot$botToken/getMe")
+            val response: HttpResponse = httpClient.get("https://api.telegram.org/bot${localParam.botToken}/getMe")
             println(response.readText())
             sendMessageToDevGroup("Link Start!")
             sendMessageToDevGroup(AppCenterCrashData(
@@ -159,7 +168,7 @@ fun Application.module(testing: Boolean = false) {
                     val fileName = "${checkUpdateData.app_name}-release ${checkUpdateData.short_version}.apk"
                     val file = File(dir.absolutePath+File.separator+fileName)
                     downloadResponse.content.copyAndClose(file.writeChannel())
-                    val response:HttpResponse = httpClient.post("https://api.telegram.org/bot$botToken/sendDocument"){
+                    val response:HttpResponse = httpClient.post("https://api.telegram.org/bot${localParam.botToken}/sendDocument"){
                         body = MultiPartFormDataContent(
                                 formData {
                                     append("chat_id","-1001186899631")
@@ -187,7 +196,7 @@ fun Application.module(testing: Boolean = false) {
 
 suspend fun sendMessageToDevGroup(msg:String,logger:Logger?=null) {
     val httpClient = getHttpClientWithGson()
-    val response: HttpResponse = httpClient.post("https://api.telegram.org/bot$botToken/sendMessage"){
+    val response: HttpResponse = httpClient.post("https://api.telegram.org/bot${localParam.botToken}/sendMessage"){
         contentType(ContentType.Application.Json)
         body = mapOf(
                 "chat_id" to "-1001186899631",
@@ -227,8 +236,8 @@ suspend fun uploadFileToTaichi(file:File,log:String,logger:Logger) {
     val loginResponse:HttpResponse = httpClient.post("http://admin.taichi.cool/auth/login"){
         contentType(ContentType.Application.Json)
         body = mapOf(
-                "username" to taichiUsername,
-                "password" to taichiPassword
+                "username" to localParam.taichiUsername,
+                "password" to localParam.taichiPassword
         )
     }
     if (loginResponse.status.isSuccess()) {
