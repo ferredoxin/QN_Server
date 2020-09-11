@@ -157,6 +157,7 @@ fun Application.module(testing: Boolean = false) {
                                         append(HttpHeaders.ContentDisposition,"filename=$fileName")
                                     })
                                     append("caption",checkUpdateData.toMarkdown())
+                                    append("parse_mode","Markdown")
                                 }
                         )
                     }
