@@ -30,8 +30,14 @@ import java.io.File
 import java.util.*
 
 private lateinit var botToken:String
+private lateinit var dir:File
+private lateinit var commitHistoryFile: File
 
 fun main(args: Array<String>){
+    dir = File("/root/QNotified_release")
+    if (!dir.exists()) dir.mkdir()
+    commitHistoryFile = File(dir.absolutePath+File.separator+"CommitHistory.txt")
+    if (!commitHistoryFile.exists()) commitHistoryFile.createNewFile()
     print("请输入Telegram Bot Token: ")
     try {
         botToken = readLine()?:""
@@ -77,6 +83,8 @@ fun Application.module(testing: Boolean = false) {
             if (data.ref=="refs/heads/master") {
                 for (commit in data.commits) {
                     for (string in commit.modified) {
+                        if (string.isBlank()) continue
+                        commitHistoryFile.appendText("$string\n")
                         if (string=="CardMsgBlackList.json") {
                             log.debug("start downloading: ")
                             val httpClient = HttpClient()
@@ -126,14 +134,17 @@ fun Application.module(testing: Boolean = false) {
             val data = call.receive<AppCenterDistributeData>()
             log.debug(data.toString())
             call.respond("")
+            val string = commitHistoryFile.readText()
+            if (string.isNotBlank()) {
+                data.release_notes = string
+                commitHistoryFile.writeText("")
+            }
             val httpClient = getHttpClientWithGson()
             val checkUpdateData = httpClient.get<AppCenterCheckUpdateData>("https://api.appcenter.ms/v0.1/public/sdk/apps/ddf4b597-1833-45dd-af28-96ca504b8123/releases/latest")
             if (!checkUpdateData.download_url.isBlank()) {
                 val downloadResponse: HttpResponse = httpClient.get(checkUpdateData.download_url)
                 if (downloadResponse.status.isSuccess()) {
                     val fileName = "${checkUpdateData.app_name}-release ${checkUpdateData.short_version}.apk"
-                    val dir = File("/root/QNotified_release")
-                    if (!dir.exists()) dir.mkdir()
                     val file = File(dir.absolutePath+File.separator+fileName)
                     downloadResponse.content.copyAndClose(file.writeChannel())
                     val response:HttpResponse = httpClient.post("https://api.telegram.org/bot$botToken/sendDocument"){

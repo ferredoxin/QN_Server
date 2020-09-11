@@ -16,7 +16,7 @@ data class AppCenterCheckUpdateData(
 ):MarkdownAble {
     override fun toString(): String {
         val stringBuilder = StringBuilder()
-        stringBuilder.append("$app_name ($bundle_identifier)\n")
+        stringBuilder.append("$app_name ($bundle_identifier)\n\n")
         stringBuilder.append("New Version $short_version($version) $status\n")
         stringBuilder.append("Build ID: $id\n")
         stringBuilder.append("Time: $uploaded_at\n")
@@ -25,7 +25,7 @@ data class AppCenterCheckUpdateData(
     }
     override fun toMarkdown(): String {
         val stringBuilder = StringBuilder()
-        stringBuilder.append("*$app_name* ($bundle_identifier)\n")
+        stringBuilder.append("*$app_name* ($bundle_identifier)\n\n")
         stringBuilder.append("New Version `$short_version($version)` $status\n")
         stringBuilder.append("Build ID: `$id`\n")
         stringBuilder.append("Time: `$uploaded_at`\n")
