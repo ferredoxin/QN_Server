@@ -46,7 +46,7 @@ fun main(args: Array<String>){
     if (!commitHistoryFile.exists()) commitHistoryFile.createNewFile()
     try {
         val localParamFile = File("/root/QN_Server_Local.json")
-        if (!localParamFile.exists()) {
+        if (!localParamFile.exists()||localParamFile.readText().isBlank()) {
             localParamFile.createNewFile()
             localParam = LocalParam()
             print("请输入太极后台用户名: ")
