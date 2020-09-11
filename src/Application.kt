@@ -137,7 +137,6 @@ fun Application.module(testing: Boolean = false) {
                     val file = File(dir.absolutePath+File.separator+fileName)
                     downloadResponse.content.copyAndClose(file.writeChannel())
                     val response:HttpResponse = httpClient.post("https://api.telegram.org/bot$botToken/sendDocument"){
-                        contentType(ContentType.MultiPart.FormData)
                         body = MultiPartFormDataContent(
                                 formData {
                                     append("chat_id","-1001186899631")
@@ -150,6 +149,7 @@ fun Application.module(testing: Boolean = false) {
                         )
                     }
                     log.debug(response.readText())
+                    sendMessageToDevGroup(checkUpdateData)
                 }else {
                     log.debug("下载更新 ${checkUpdateData.short_version} 失败")
                 }
