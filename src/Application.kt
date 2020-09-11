@@ -20,7 +20,9 @@ import io.ktor.util.cio.*
 import io.ktor.utils.io.*
 import io.ktor.utils.io.streams.*
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import me.singleNeuron.base.MarkdownAble
 import me.singleNeuron.data.appcenter.AppCenterBuildData
 import me.singleNeuron.data.github.GithubWebHookData
@@ -59,7 +61,7 @@ fun main(args: Array<String>){
         }else {
             localParam = Gson().fromJson(localParamFile.readText(),LocalParam::class.java)
         }
-        GlobalScope.launch {
+        runBlocking {
             val httpClient = HttpClient()
             val response: HttpResponse = httpClient.get("https://api.telegram.org/bot${localParam.botToken}/getMe")
             println(response.readText())
