@@ -1,0 +1,11 @@
+{
+    "app_name": "QNotified",
+    "id": 80,
+    "version": "41",
+    "short_version": "0.8.10.179.2519b21",
+    "bundle_identifier": "nil.nadph.qnotified",
+    "uploaded_at": "2020-09-11T07:06:10.123Z",
+    "download_url": "https://appcenter-filemanagement-distrib5ede6f06e.azureedge.net/93f5f989-7d39-4ba0-8dd6-38b1e1f538b9/app-release.apk?sv=2019-02-02&sr=c&sig=2cap%2BNS0lufKrsa%2BrBIoukMV%2FSb8Gux4JBHBT0hAROk%3D&se=2020-09-12T07%3A06%3A49Z&sp=r",
+    "release_notes": "Merge pull request #317 from 122cygf/master\n\nUpdate CheatHook.java",
+    "status": "available"
+}

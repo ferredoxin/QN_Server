@@ -11,13 +11,19 @@ import io.ktor.client.*
 import io.ktor.client.engine.apache.*
 import io.ktor.client.features.json.*
 import io.ktor.client.request.*
+import io.ktor.client.request.forms.*
 import io.ktor.client.statement.*
+import io.ktor.util.*
+import io.ktor.util.cio.*
+import io.ktor.utils.io.*
+import io.ktor.utils.io.streams.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import me.singleNeuron.base.MarkdownAble
 import me.singleNeuron.data.appcenter.AppCenterBuildData
 import me.singleNeuron.data.github.GithubWebHookData
+import me.singleNeuron.me.singleNeuron.data.appcenter.AppCenterCheckUpdateData
 import me.singleNeuron.me.singleNeuron.data.appcenter.AppCenterCrashData
 import me.singleNeuron.me.singleNeuron.data.appcenter.AppCenterDistributeData
 import java.io.File
@@ -40,6 +46,7 @@ fun main(args: Array<String>){
                     url = "https://github.com/cinit",
                     app_version = "NaN"
             ))
+            httpClient.close()
         }
     }catch (e:Exception) {
         println(e)
@@ -47,6 +54,7 @@ fun main(args: Array<String>){
     io.ktor.server.netty.EngineMain.main(args)
 }
 
+@KtorExperimentalAPI
 @Suppress("unused") // Referenced in application.conf
 @kotlin.jvm.JvmOverloads
 fun Application.module(testing: Boolean = false) {
@@ -118,6 +126,35 @@ fun Application.module(testing: Boolean = false) {
             val data = call.receive<AppCenterDistributeData>()
             log.debug(data.toString())
             call.respond("")
+            val httpClient = getHttpClientWithGson()
+            val checkUpdateData = httpClient.get<AppCenterCheckUpdateData>("https://api.appcenter.ms/v0.1/public/sdk/apps/ddf4b597-1833-45dd-af28-96ca504b8123/releases/latest")
+            if (!checkUpdateData.download_url.isBlank()) {
+                val downloadResponse: HttpResponse = httpClient.get(checkUpdateData.download_url)
+                if (downloadResponse.status.isSuccess()) {
+                    val fileName = "${checkUpdateData.app_name}-release ${checkUpdateData.short_version}.apk"
+                    val dir = File("/root/QNotified_release")
+                    if (!dir.exists()) dir.mkdir()
+                    val file = File(dir.absolutePath+File.separator+fileName)
+                    downloadResponse.content.copyAndClose(file.writeChannel())
+                    val response:HttpResponse = httpClient.post("https://api.telegram.org/bot$botToken/sendDocument"){
+                        contentType(ContentType.MultiPart.FormData)
+                        body = MultiPartFormDataContent(
+                                formData {
+                                    append("chat_id","-1001186899631")
+                                    append("document", InputProvider {
+                                        file.inputStream().asInput()
+                                    }, Headers.build {
+                                        append(HttpHeaders.ContentDisposition,"filename=$fileName")
+                                    })
+                                }
+                        )
+                    }
+                    log.debug(response.readText())
+                }else {
+                    log.debug("下载更新 ${checkUpdateData.short_version} 失败")
+                }
+            }
+            httpClient.close()
         }
     }
 }
@@ -132,6 +169,7 @@ suspend fun sendMessageToDevGroup(msg:String) {
                 "text" to msg
         )
     }
+    httpClient.close()
     println(response.readText())
 }
 
