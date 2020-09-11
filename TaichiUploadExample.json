@@ -1,0 +1,18 @@
+{
+    "code": 0,
+    "data": {
+        "package": "nil.nadph.qnotified",
+        "name": "QNotified",
+        "desc": "QQ辅助性功能增强 免费软件 请勿盗卖或用于非法用途 by cinit@github",
+        "version_code": 40,
+        "version_name": "0.8.9.00678a5",
+        "id": 5847
+    }
+}
+{
+    "aid":5848,
+    "name":"QNotified",
+    "desc":"QQ辅助性功能增强 免费软件 请勿盗卖或用于非法用途 by cinit@github",
+    "magisk":true,
+    "log":"1"
+}

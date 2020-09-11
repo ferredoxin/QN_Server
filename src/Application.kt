@@ -9,6 +9,7 @@ import io.ktor.gson.*
 import io.ktor.features.*
 import io.ktor.client.*
 import io.ktor.client.engine.apache.*
+import io.ktor.client.features.cookies.*
 import io.ktor.client.features.json.*
 import io.ktor.client.request.*
 import io.ktor.client.request.forms.*
@@ -18,28 +19,35 @@ import io.ktor.util.cio.*
 import io.ktor.utils.io.*
 import io.ktor.utils.io.streams.*
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import me.singleNeuron.base.MarkdownAble
 import me.singleNeuron.data.appcenter.AppCenterBuildData
 import me.singleNeuron.data.github.GithubWebHookData
+import me.singleNeuron.data.taichi.TaichiAddData
+import me.singleNeuron.data.taichi.TaichiUploadData
 import me.singleNeuron.me.singleNeuron.data.appcenter.AppCenterCheckUpdateData
 import me.singleNeuron.me.singleNeuron.data.appcenter.AppCenterCrashData
 import me.singleNeuron.me.singleNeuron.data.appcenter.AppCenterDistributeData
+import org.slf4j.Logger
 import java.io.File
-import java.util.*
 
 private lateinit var botToken:String
 private lateinit var dir:File
 private lateinit var commitHistoryFile: File
+private lateinit var taichiUsername: String
+private lateinit var taichiPassword: String
 
 fun main(args: Array<String>){
     dir = File("/root/QNotified_release")
     if (!dir.exists()) dir.mkdir()
     commitHistoryFile = File(dir.absolutePath+File.separator+"CommitHistory.txt")
     if (!commitHistoryFile.exists()) commitHistoryFile.createNewFile()
-    print("请输入Telegram Bot Token: ")
     try {
+        print("请输入太极后台用户名: ")
+        taichiUsername = readLine()?:""
+        print("请输入太极后台密码: ")
+        taichiPassword = readLine()?:""
+        print("请输入Telegram Bot Token: ")
         botToken = readLine()?:""
         GlobalScope.launch {
             val httpClient = HttpClient()
@@ -116,7 +124,7 @@ fun Application.module(testing: Boolean = false) {
             val data = call.receive<AppCenterBuildData>()
             log.debug(data.toString())
             call.respond("")
-            sendMessageToDevGroup(data)
+            sendMessageToDevGroup(data,log)
         }
         post("/webhook/appcenter/crash") {
             val log = call.application.environment.log
@@ -124,8 +132,8 @@ fun Application.module(testing: Boolean = false) {
             val data = call.receive<AppCenterCrashData>()
             log.debug(data.toString())
             call.respond("")
-            if(Regex("""me\.|nil\.nadph""", RegexOption.IGNORE_CASE).containsMatchIn(data.toString())) {
-                sendMessageToDevGroup(data)
+            if(Regex("""[\W]me\.|nil\.nadph""", RegexOption.IGNORE_CASE).containsMatchIn(data.toString())) {
+                sendMessageToDevGroup(data,log)
             }
         }
         post("/webhook/appcenter/distribute"){
@@ -162,6 +170,7 @@ fun Application.module(testing: Boolean = false) {
                         )
                     }
                     log.debug(response.readText())
+                    uploadFileToTaichi(file,checkUpdateData.release_notes,log)
                     //sendMessageToDevGroup(checkUpdateData)
                 }else {
                     log.debug("下载更新 ${checkUpdateData.short_version} 失败")
@@ -172,7 +181,7 @@ fun Application.module(testing: Boolean = false) {
     }
 }
 
-suspend fun sendMessageToDevGroup(msg:String) {
+suspend fun sendMessageToDevGroup(msg:String,logger:Logger?=null) {
     val httpClient = getHttpClientWithGson()
     val response: HttpResponse = httpClient.post("https://api.telegram.org/bot$botToken/sendMessage"){
         contentType(ContentType.Application.Json)
@@ -183,11 +192,12 @@ suspend fun sendMessageToDevGroup(msg:String) {
         )
     }
     httpClient.close()
-    println(response.readText())
+    if (logger!=null) logger.debug(response.readText())
+    else println(response.readText())
 }
 
-suspend fun sendMessageToDevGroup(msg:MarkdownAble) {
-    sendMessageToDevGroup(msg.toMarkdown())
+suspend fun sendMessageToDevGroup(msg:MarkdownAble,logger: Logger?=null) {
+    sendMessageToDevGroup(msg.toMarkdown(),logger)
     //println(msg.toMarkdown())
 }
 
@@ -198,4 +208,44 @@ fun getHttpClientWithGson():HttpClient {
             }
         }
     }
+}
+
+suspend fun uploadFileToTaichi(file:File,log:String,logger:Logger) {
+    val httpClient = HttpClient(Apache) {
+        install(JsonFeature) {
+            serializer = GsonSerializer {
+            }
+        }
+        install(HttpCookies) {
+            storage = AcceptAllCookiesStorage()
+        }
+    }
+    val loginResponse:HttpResponse = httpClient.post("http://admin.taichi.cool/auth/login"){
+        contentType(ContentType.Application.Json)
+        body = mapOf(
+                "username" to taichiUsername,
+                "password" to taichiPassword
+        )
+    }
+    if (loginResponse.status.isSuccess()) {
+        val uploadData = httpClient.post<TaichiUploadData>("http://admin.taichi.cool/module/upload"){
+            body = MultiPartFormDataContent(
+                formData{
+                    append("file", InputProvider{file.inputStream().asInput()})
+                }
+            )
+        }
+        if (uploadData.data.id!=-1) {
+            httpClient.post<HttpResponse>("http://admin.taichi.cool/module/add") {
+                contentType(ContentType.Application.Json)
+                body = TaichiAddData.fromTaichiUploadData(uploadData,log)
+            }
+            logger.debug("Successful upload")
+        } else {
+            logger.debug("Upload failed: $uploadData")
+        }
+    } else {
+        logger.debug("Login failed: ${loginResponse.toString()}\n${loginResponse.readText()}")
+    }
+    httpClient.close()
 }

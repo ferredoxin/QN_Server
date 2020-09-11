@@ -1,4 +1,4 @@
-POST http://ioctl.cc:10492/webhook/github
+POST http://admin.taichi.cool/auth/login
 Content-Type: application/json
 
-{"snippet": {"text" : "mysnippet"}}
+{"username":  "qnya","password": "qn12345"}
