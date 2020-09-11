@@ -156,11 +156,12 @@ fun Application.module(testing: Boolean = false) {
                                     }, Headers.build {
                                         append(HttpHeaders.ContentDisposition,"filename=$fileName")
                                     })
+                                    append("caption",checkUpdateData.toMarkdown())
                                 }
                         )
                     }
                     log.debug(response.readText())
-                    sendMessageToDevGroup(checkUpdateData)
+                    //sendMessageToDevGroup(checkUpdateData)
                 }else {
                     log.debug("下载更新 ${checkUpdateData.short_version} 失败")
                 }
