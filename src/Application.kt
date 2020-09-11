@@ -88,6 +88,10 @@ fun Application.module(testing: Boolean = false) {
             val data = call.receive<GithubWebHookData>()
             log.debug(data.toString())
             call.respond("success")
+            if (data.repository.full_name=="singleNeuron/QN_Server") {
+                Runtime.getRuntime().exec("sh /root/QN_Server/UpdateServer.sh")
+                System.exit(0)
+            }
             if (data.ref=="refs/heads/master") {
                 for (commit in data.commits) {
                     for (string in commit.modified) {
