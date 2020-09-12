@@ -19,10 +19,7 @@ import io.ktor.util.*
 import io.ktor.util.cio.*
 import io.ktor.utils.io.*
 import io.ktor.utils.io.streams.*
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.async
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.*
 import me.singleNeuron.base.MarkdownAble
 import me.singleNeuron.data.appcenter.AppCenterBuildData
 import me.singleNeuron.data.github.GithubWebHookData
@@ -173,13 +170,15 @@ fun Application.module(testing: Boolean = false) {
             val data = call.receive<AppCenterDistributeData>()
             log.debug(data.toString())
             call.respond("")
+            delay(60*1000)
+            val httpClient = getHttpClientWithGson()
+            val checkUpdateData = httpClient.get<AppCenterCheckUpdateData>("https://api.appcenter.ms/v0.1/public/sdk/apps/ddf4b597-1833-45dd-af28-96ca504b8123/releases/latest")
+            log.debug(checkUpdateData.toString())
             val string = commitHistoryFile.readText()
             if (string.isNotBlank()) {
                 data.release_notes = string
                 commitHistoryFile.writeText("")
             }
-            val httpClient = getHttpClientWithGson()
-            val checkUpdateData = httpClient.get<AppCenterCheckUpdateData>("https://api.appcenter.ms/v0.1/public/sdk/apps/ddf4b597-1833-45dd-af28-96ca504b8123/releases/latest")
             if (!checkUpdateData.download_url.isBlank()) {
                 val downloadResponse: HttpResponse = httpClient.get(checkUpdateData.download_url)
                 if (downloadResponse.status.isSuccess()) {
