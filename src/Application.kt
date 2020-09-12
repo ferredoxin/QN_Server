@@ -117,12 +117,6 @@ fun Application.module(testing: Boolean = false) {
             log.debug(data.toString())
             call.respond("success")
             if (data.repository.full_name=="singleNeuron/QN_Server") {
-                ProcessBuilder("sh","/root/QN_Server/UpdateServer.sh")
-                        .directory(File("/root/QN_Server"))
-                        .redirectInput(ProcessBuilder.Redirect.INHERIT)
-                        .redirectOutput(ProcessBuilder.Redirect.INHERIT)
-                        .redirectErrorStream(true)
-                        .start()
                 exitProcess(0)
             }
             if (data.ref=="refs/heads/master") {
