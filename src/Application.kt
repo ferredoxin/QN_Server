@@ -173,12 +173,12 @@ fun Application.module(testing: Boolean = false) {
             delay(60*1000)
             val httpClient = getHttpClientWithGson()
             val checkUpdateData = httpClient.get<AppCenterCheckUpdateData>("https://api.appcenter.ms/v0.1/public/sdk/apps/ddf4b597-1833-45dd-af28-96ca504b8123/releases/latest")
-            log.debug(checkUpdateData.toString())
             val string = commitHistoryFile.readText()
             if (string.isNotBlank()) {
                 checkUpdateData.release_notes = string
                 commitHistoryFile.writeText("")
             }
+            log.debug(checkUpdateData.toMarkdown())
             if (!checkUpdateData.download_url.isBlank()) {
                 val downloadResponse: HttpResponse = httpClient.get(checkUpdateData.download_url)
                 if (downloadResponse.status.isSuccess()) {
@@ -231,7 +231,7 @@ suspend fun sendMessageToDevGroup(msg:MarkdownAble,logger: Logger?=null) {
     //println(msg.toMarkdown())
 }
 
-fun getHttpClient():HttpClient {
+fun getHttpClientNotExpectSuccess():HttpClient {
     return HttpClient(Apache){
         expectSuccess = false
     }
