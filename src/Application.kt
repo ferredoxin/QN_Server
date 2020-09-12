@@ -118,9 +118,8 @@ fun Application.module(testing: Boolean = false) {
             }
             if (data.ref=="refs/heads/master") {
                 for (commit in data.commits) {
+                    commitHistoryFile.appendText("${commit.message}\n\n")
                     for (string in commit.modified) {
-                        if (string.isBlank()) continue
-                        commitHistoryFile.appendText("$string\n\n")
                         if (string=="CardMsgBlackList.json") {
                             log.debug("start downloading: ")
                             val httpClient = HttpClient()
