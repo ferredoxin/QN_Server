@@ -116,8 +116,8 @@ fun Application.module(testing: Boolean = false) {
             val data = call.receive<GithubWebHookData>()
             log.debug(data.toString())
             call.respond("success")
-            if (data.repository.full_name=="singleNeuron/QN_Server") {
-                exitProcess(0)
+            if (data.repository.full_name!="cinit/QNotified") {
+                return@post
             }
             if (data.ref=="refs/heads/master") {
                 for (commit in data.commits) {
