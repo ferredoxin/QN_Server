@@ -178,7 +178,7 @@ fun Application.module(testing: Boolean = false) {
                 checkUpdateData.release_notes = string
                 commitHistoryFile.writeText("")
             }
-            log.debug(checkUpdateData.toMarkdown())
+            log.debug(checkUpdateData.toHtml())
             if (!checkUpdateData.download_url.isBlank()) {
                 val downloadResponse: HttpResponse = httpClient.get(checkUpdateData.download_url)
                 if (downloadResponse.status.isSuccess()) {
@@ -194,8 +194,8 @@ fun Application.module(testing: Boolean = false) {
                                     }, Headers.build {
                                         append(HttpHeaders.ContentDisposition,"filename=$fileName")
                                     })
-                                    append("caption",checkUpdateData.toMarkdown())
-                                    append("parse_mode","Markdown")
+                                    append("caption",checkUpdateData.toHtml())
+                                    append("parse_mode","HTML")
                                 }
                         )
                     }
