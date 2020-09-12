@@ -120,7 +120,7 @@ fun Application.module(testing: Boolean = false) {
                 for (commit in data.commits) {
                     for (string in commit.modified) {
                         if (string.isBlank()) continue
-                        commitHistoryFile.appendText("$string\n")
+                        commitHistoryFile.appendText("$string\n\n")
                         if (string=="CardMsgBlackList.json") {
                             log.debug("start downloading: ")
                             val httpClient = HttpClient()
