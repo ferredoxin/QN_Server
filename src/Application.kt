@@ -34,6 +34,8 @@ import me.singleNeuron.me.singleNeuron.data.appcenter.AppCenterCrashData
 import me.singleNeuron.me.singleNeuron.data.appcenter.AppCenterDistributeData
 import org.slf4j.Logger
 import java.io.File
+import java.text.SimpleDateFormat
+import java.util.*
 import kotlin.system.exitProcess
 
 private lateinit var dir:File
@@ -93,6 +95,20 @@ fun Application.module(testing: Boolean = false) {
     routing {
         get("/") {
             call.respondText("HELLO WORLD!", contentType = ContentType.Text.Plain)
+        }
+        get("/log") {
+            val logDir = File("/root/QN_Server_Log")
+            if (logDir.exists()&&logDir.exists()) {
+                val fileName = SimpleDateFormat("/root/QN_Server_log/logFile.yyyy-MM-dd.log").format(Date())
+                val logFile = File(fileName)
+                if (logFile.exists()) {
+                    call.respondText(logFile.readText())
+                } else {
+                    call.respondText("No Log")
+                }
+            } else {
+                call.respondText("NULL")
+            }
         }
         post("/webhook/github") {
             val log = call.application.environment.log
