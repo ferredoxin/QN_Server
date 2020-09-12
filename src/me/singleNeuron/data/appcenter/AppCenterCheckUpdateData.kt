@@ -11,7 +11,7 @@ data class AppCenterCheckUpdateData(
         val bundle_identifier:String = "",
         val uploaded_at:String = "",
         val download_url:String = "",
-        val release_notes:String = "",
+        var release_notes:String = "",
         val status:String = ""
 ):MarkdownAble {
     override fun toString(): String {

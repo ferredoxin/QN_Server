@@ -176,7 +176,7 @@ fun Application.module(testing: Boolean = false) {
             log.debug(checkUpdateData.toString())
             val string = commitHistoryFile.readText()
             if (string.isNotBlank()) {
-                data.release_notes = string
+                checkUpdateData.release_notes = string
                 commitHistoryFile.writeText("")
             }
             if (!checkUpdateData.download_url.isBlank()) {
