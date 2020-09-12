@@ -189,7 +189,7 @@ fun Application.module(testing: Boolean = false) {
                     val response:HttpResponse = httpClient.post("https://api.telegram.org/bot${localParam.botToken}/sendDocument"){
                         body = MultiPartFormDataContent(
                                 formData {
-                                    append("chat_id","-1001186899631")
+                                    append("chat_id","@QNotified")
                                     append("document", InputProvider {
                                         file.inputStream().asInput()
                                     }, Headers.build {
@@ -201,7 +201,7 @@ fun Application.module(testing: Boolean = false) {
                         )
                     }
                     log.debug(response.readText())
-                    uploadFileToTaichi(file,checkUpdateData.release_notes,log)
+                    //uploadFileToTaichi(file,checkUpdateData.release_notes,log)
                     //sendMessageToDevGroup(checkUpdateData)
                 }else {
                     log.debug("下载更新 ${checkUpdateData.short_version} 失败")
@@ -259,10 +259,12 @@ suspend fun uploadFileToTaichi(file:File,log:String,logger:Logger) {
         )
     }
     if (loginResponse.status.isSuccess()) {
-        val uploadData = httpClient.post<TaichiUploadData>("http://admin.taichi.cool/module/upload"){
+        val uploadData = httpClient.post<TaichiUploadData>("http://admin.taichi.cool/upload"){
             body = MultiPartFormDataContent(
                 formData{
-                    append("file", InputProvider{file.inputStream().asInput()})
+                    append("file", InputProvider{file.inputStream().asInput()}, Headers.build {
+                        contentType(ContentType.parse("application/vnd.android.package-archive"))
+                    })
                 }
             )
         }
