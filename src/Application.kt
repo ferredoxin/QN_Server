@@ -97,7 +97,7 @@ fun Application.module(testing: Boolean = false) {
             call.respondText("HELLO WORLD!", contentType = ContentType.Text.Plain)
         }
         get("/log") {
-            val logDir = File("/root/QN_Server_Log")
+            val logDir = File("/root/QN_Server_log")
             if (logDir.exists()&&logDir.exists()) {
                 val fileName = SimpleDateFormat("/root/QN_Server_log/logFile.yyyy-MM-dd.log").format(Date())
                 val logFile = File(fileName)
