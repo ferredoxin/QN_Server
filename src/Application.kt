@@ -231,8 +231,15 @@ suspend fun sendMessageToDevGroup(msg:MarkdownAble,logger: Logger?=null) {
     //println(msg.toMarkdown())
 }
 
+fun getHttpClient():HttpClient {
+    return HttpClient(Apache){
+        expectSuccess = false
+    }
+}
+
 fun getHttpClientWithGson():HttpClient {
     return HttpClient(Apache){
+        expectSuccess = false
         install(JsonFeature) {
             serializer = GsonSerializer {
             }
