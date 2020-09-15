@@ -25,10 +25,10 @@ import me.singleNeuron.data.appcenter.AppCenterBuildData
 import me.singleNeuron.data.github.GithubWebHookData
 import me.singleNeuron.data.taichi.TaichiAddData
 import me.singleNeuron.data.taichi.TaichiUploadData
-import me.singleNeuron.me.singleNeuron.data.LocalParam
-import me.singleNeuron.me.singleNeuron.data.appcenter.AppCenterCheckUpdateData
-import me.singleNeuron.me.singleNeuron.data.appcenter.AppCenterCrashData
-import me.singleNeuron.me.singleNeuron.data.appcenter.AppCenterDistributeData
+import me.singleNeuron.data.LocalParam
+import me.singleNeuron.data.appcenter.AppCenterCheckUpdateData
+import me.singleNeuron.data.appcenter.AppCenterCrashData
+import me.singleNeuron.data.appcenter.AppCenterDistributeData
 import org.slf4j.Logger
 import java.io.File
 import java.text.SimpleDateFormat
@@ -113,7 +113,7 @@ fun Application.module(testing: Boolean = false) {
             val data = call.receive<GithubWebHookData>()
             log.debug(data.toString())
             call.respond("success")
-            if (data.repository.full_name!="cinit/QNotified") {
+            if (data.repository.full_name!="ferredoxin/QNotified") {
                 return@post
             }
             if (data.ref=="refs/heads/master") {
@@ -123,7 +123,7 @@ fun Application.module(testing: Boolean = false) {
                         if (string=="CardMsgBlackList.json") {
                             log.debug("start downloading: ")
                             val httpClient = HttpClient()
-                            val response: HttpResponse = httpClient.get("https://raw.githubusercontent.com/cinit/QNotified/master/CardMsgBlackList.json")
+                            val response: HttpResponse = httpClient.get("https://raw.githubusercontent.com/ferredoxin/QNotified/master/CardMsgBlackList.json")
                             log.debug("downloading: ${response.status}")
                             if (response.status.isSuccess()) {
                                 val json = response.readText()

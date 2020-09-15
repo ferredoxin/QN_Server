@@ -1,4 +1,4 @@
-package me.singleNeuron.me.singleNeuron.data.appcenter
+package me.singleNeuron.data.appcenter
 
 import me.singleNeuron.base.MarkdownAble
 

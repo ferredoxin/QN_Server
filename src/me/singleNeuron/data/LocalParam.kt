@@ -1,4 +1,4 @@
-package me.singleNeuron.me.singleNeuron.data
+package me.singleNeuron.data
 
 data class LocalParam(
         var botToken:String? = null,
