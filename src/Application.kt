@@ -119,7 +119,7 @@ fun Application.module(testing: Boolean = false) {
             if (data.ref=="refs/heads/master") {
                 for (commit in data.commits) {
                     commitHistoryFile.appendText("${commit.message}\n\n")
-                    for (string in commit.modified) {
+                    /*for (string in commit.modified) {
                         if (string=="CardMsgBlackList.json") {
                             log.debug("start downloading: ")
                             val httpClient = HttpClient()
@@ -141,7 +141,7 @@ fun Application.module(testing: Boolean = false) {
                             httpClient.close()
                             return@post
                         }
-                    }
+                    }*/
                 }
             }
         }
