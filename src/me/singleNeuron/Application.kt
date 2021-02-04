@@ -33,7 +33,6 @@ import org.slf4j.Logger
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.system.exitProcess
 
 private lateinit var dir:File
 private lateinit var commitHistoryFile: File
@@ -178,6 +177,9 @@ fun Application.module(testing: Boolean = false) {
                 commitHistoryFile.writeText("")
             }
             log.debug(checkUpdateData.toHtml())
+            if (checkUpdateData.release_notes.length>1000) {
+                checkUpdateData.release_notes = checkUpdateData.release_notes.substring(0,1000)+"\n\n…………"
+            }
             if (!checkUpdateData.download_url.isBlank()) {
                 val downloadResponse: HttpResponse = httpClient.get(checkUpdateData.download_url)
                 if (downloadResponse.status.isSuccess()) {

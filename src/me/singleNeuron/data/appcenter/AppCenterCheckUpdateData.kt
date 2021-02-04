@@ -30,7 +30,8 @@ data class AppCenterCheckUpdateData(
         stringBuilder.append("New Version `$short_version($version)` $status\n")
         stringBuilder.append("Build ID: `$id`\n")
         stringBuilder.append("Time: `$uploaded_at`\n")
-        stringBuilder.append("\n$release_notes")
+        stringBuilder.append("\n$release_notes\n")
+        stringBuilder.append("\n#QNotified更新 #unstable")
         return stringBuilder.toString()
     }
 
@@ -40,7 +41,8 @@ data class AppCenterCheckUpdateData(
         stringBuilder.append("New Version <code>$short_version($version)</code> $status\n")
         stringBuilder.append("Build ID: <code>$id</code>\n")
         stringBuilder.append("Time: <code>$uploaded_at</code>\n")
-        stringBuilder.append("\n${processHtmlChar(release_notes)}")
+        stringBuilder.append("\n${processHtmlChar(release_notes)}\n")
+        stringBuilder.append("\n#QNotified #unstable")
         return stringBuilder.toString()
     }
 }
