@@ -21,6 +21,7 @@ import io.ktor.utils.io.*
 import io.ktor.utils.io.streams.*
 import kotlinx.coroutines.*
 import me.singleNeuron.base.MarkdownAble
+import me.singleNeuron.data.DevLog
 import me.singleNeuron.data.appcenter.AppCenterBuildData
 import me.singleNeuron.data.github.GithubWebHookData
 import me.singleNeuron.data.taichi.TaichiAddData
@@ -31,6 +32,7 @@ import me.singleNeuron.data.appcenter.AppCenterCrashData
 import me.singleNeuron.data.appcenter.AppCenterDistributeData
 import org.slf4j.Logger
 import java.io.File
+import java.nio.charset.Charset
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -118,29 +120,6 @@ fun Application.module(testing: Boolean = false) {
             if (data.ref=="refs/heads/master") {
                 for (commit in data.commits) {
                     commitHistoryFile.appendText("${commit.message}\n\n")
-                    /*for (string in commit.modified) {
-                        if (string=="CardMsgBlackList.json") {
-                            log.debug("start downloading: ")
-                            val httpClient = HttpClient()
-                            val response: HttpResponse = httpClient.get("https://raw.githubusercontent.com/ferredoxin/QNotified/master/CardMsgBlackList.json")
-                            log.debug("downloading: ${response.status}")
-                            if (response.status.isSuccess()) {
-                                val json = response.readText()
-                                val file = File("/root/CardMsgBlackList.json")
-                                if (!file.exists()) {
-                                    if (!file.createNewFile()) {
-                                        log.debug("File Create Failed")
-                                        return@post
-                                    }
-                                }
-                                file.writeText(json)
-                                log.debug("File download Success")
-                                log.debug(json)
-                            }
-                            httpClient.close()
-                            return@post
-                        }
-                    }*/
                 }
             }
         }
@@ -200,11 +179,20 @@ fun Application.module(testing: Boolean = false) {
                                 }
                         )
                     }
-                    log.debug(response.readText())
-                    //uploadFileToTaichi(file,checkUpdateData.release_notes,log)
-                    //sendMessageToDevGroup(checkUpdateData)
+                    val responseText = response.readText()
+                    log.debug(responseText)
+                    sendMessageToDevGroup(DevLog("uploadToGroup",responseText),log)
+
+                    val pythonCommand = "python3 /root/taichi.py ${file.absolutePath}"
+                    withContext(Dispatchers.IO) {
+                        val result = Runtime.getRuntime().exec(pythonCommand).inputStream.readBytes().toString(Charset.defaultCharset())
+                        log.debug(result)
+                        sendMessageToDevGroup(DevLog("uploadToTaichi",result),log)
+                    }
+
                 }else {
-                    log.debug("下载更新 ${checkUpdateData.short_version} 失败")
+                    log.debug("下载更新 ${checkUpdateData.short_version} 失败: ${downloadResponse.status.description}")
+                    sendMessageToDevGroup(DevLog("downloadUpdate: ${checkUpdateData.short_version}",downloadResponse.status.description),log)
                 }
             }
             httpClient.close()
@@ -229,13 +217,6 @@ suspend fun sendMessageToDevGroup(msg:String,logger:Logger?=null) {
 
 suspend fun sendMessageToDevGroup(msg:MarkdownAble,logger: Logger?=null) {
     sendMessageToDevGroup(msg.toMarkdown(),logger)
-    //println(msg.toMarkdown())
-}
-
-fun getHttpClientNotExpectSuccess():HttpClient {
-    return HttpClient(Apache){
-        expectSuccess = false
-    }
 }
 
 fun getHttpClientWithGson():HttpClient {
@@ -246,46 +227,4 @@ fun getHttpClientWithGson():HttpClient {
             }
         }
     }
-}
-
-suspend fun uploadFileToTaichi(file:File,log:String,logger:Logger) {
-    val httpClient = HttpClient(Apache) {
-        install(JsonFeature) {
-            serializer = GsonSerializer {
-            }
-        }
-        install(HttpCookies) {
-            storage = AcceptAllCookiesStorage()
-        }
-    }
-    val loginResponse:HttpResponse = httpClient.post("http://admin.taichi.cool/auth/login"){
-        contentType(ContentType.Application.Json)
-        body = mapOf(
-                "username" to localParam.taichiUsername,
-                "password" to localParam.taichiPassword
-        )
-    }
-    if (loginResponse.status.isSuccess()) {
-        val uploadData = httpClient.post<TaichiUploadData>("http://admin.taichi.cool/upload"){
-            body = MultiPartFormDataContent(
-                formData{
-                    append("file", InputProvider{file.inputStream().asInput()}, Headers.build {
-                        contentType(ContentType.parse("application/vnd.android.package-archive"))
-                    })
-                }
-            )
-        }
-        if (uploadData.data.id!=-1) {
-            httpClient.post<HttpResponse>("http://admin.taichi.cool/module/add") {
-                contentType(ContentType.Application.Json)
-                body = TaichiAddData.fromTaichiUploadData(uploadData,log)
-            }
-            logger.debug("Successful upload")
-        } else {
-            logger.debug("Upload failed: $uploadData")
-        }
-    } else {
-        logger.debug("Login failed: $loginResponse\n${loginResponse.readText()}")
-    }
-    httpClient.close()
 }
