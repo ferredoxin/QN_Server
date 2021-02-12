@@ -181,14 +181,14 @@ fun Application.module(testing: Boolean = false) {
                     }
                     val responseText = response.readText()
                     log.debug(responseText)
-                    sendMessageToDevGroup(DevLog("uploadToGroup",responseText),log)
+                    if (!response.status.isSuccess()) {
+                        sendMessageToDevGroup(DevLog("uploadToGroup", responseText), log)
+                    }
 
                     val pythonCommand = "python3 /root/taichi.py ${file.absolutePath}"
-                    withContext(Dispatchers.IO) {
-                        val result = Runtime.getRuntime().exec(pythonCommand).inputStream.readBytes().toString(Charset.defaultCharset())
-                        log.debug(result)
-                        sendMessageToDevGroup(DevLog("uploadToTaichi",result),log)
-                    }
+                    val result = Runtime.getRuntime().exec(pythonCommand).inputStream.readBytes().toString(Charset.defaultCharset())
+                    log.debug(result)
+                    sendMessageToDevGroup(DevLog("uploadToTaichi",result),log)
 
                 }else {
                     log.debug("下载更新 ${checkUpdateData.short_version} 失败: ${downloadResponse.status.description}")
