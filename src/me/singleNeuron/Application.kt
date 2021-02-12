@@ -185,8 +185,8 @@ fun Application.module(testing: Boolean = false) {
                         sendMessageToDevGroup(DevLog("uploadToGroup", responseText), log)
                     }
 
-                    val pythonCommand = "python3 /root/taichi.py ${file.absolutePath}"
-                    val result = Runtime.getRuntime().exec(pythonCommand).inputStream.readBytes().toString(Charset.defaultCharset())
+                    val pythonCommands = arrayOf("python3","/root/taichi.py",file.absolutePath)
+                    val result = Runtime.getRuntime().exec(pythonCommands).inputStream.readBytes().toString(Charset.defaultCharset())
                     log.debug(result)
                     sendMessageToDevGroup(DevLog("uploadToTaichi",result),log)
 
