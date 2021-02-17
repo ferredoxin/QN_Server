@@ -168,7 +168,7 @@ fun Application.module(testing: Boolean = false) {
                     val response:HttpResponse = httpClient.post("https://api.telegram.org/bot${localParam.botToken}/sendDocument"){
                         body = MultiPartFormDataContent(
                                 formData {
-                                    append("chat_id","@QNotified")
+                                    append("chat_id","@QNotified_CI")
                                     append("document", InputProvider {
                                         file.inputStream().asInput()
                                     }, Headers.build {
