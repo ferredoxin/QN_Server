@@ -29,3 +29,6 @@ build/
 .idea/
 /Telegram Bot Test.http
 *.http
+
+taichi.json
+
