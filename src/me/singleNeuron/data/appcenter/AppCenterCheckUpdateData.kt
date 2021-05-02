@@ -23,6 +23,7 @@ data class AppCenterCheckUpdateData(
         stringBuilder.append("Build ID: $id\n")
         stringBuilder.append("Time: $uploaded_at\n")
         stringBuilder.append("\n$release_notes")
+        stringBuilder.append("\ndistribution_group_id: $distribution_group_id")
         return stringBuilder.toString()
     }
     override fun toMarkdown(): String {
@@ -55,7 +56,7 @@ data class AppCenterCheckUpdateData(
         return stringBuilder.toString()
     }
 
-    private fun isBeta():Boolean {
+    public fun isBeta():Boolean {
         return distribution_group_id == "8a11cc3e-47da-4e3b-84e7-ac306a128aaf"
     }
 

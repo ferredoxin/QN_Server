@@ -155,7 +155,7 @@ fun Application.module(testing: Boolean = false) {
                 checkUpdateData.release_notes = string
                 commitHistoryFile.writeText("")
             }
-            log.debug(checkUpdateData.toHtml())
+            log.debug(checkUpdateData.toString())
             if (checkUpdateData.release_notes.length>1000) {
                 checkUpdateData.release_notes = checkUpdateData.release_notes.substring(0,1000)+"\n\n…………"
             }
@@ -185,10 +185,13 @@ fun Application.module(testing: Boolean = false) {
                         sendMessageToDevGroup(DevLog("uploadToGroup", responseText), log)
                     }
 
-                    val pythonCommands = arrayOf("python3","/root/taichi.py",file.absolutePath)
-                    val result = Runtime.getRuntime().exec(pythonCommands).inputStream.readBytes().toString(Charset.defaultCharset())
-                    log.debug(result)
-                    sendMessageToDevGroup(DevLog("uploadToTaichi",result),log)
+                    if (!checkUpdateData.isBeta()) {
+                        val pythonCommands = arrayOf("python3", "/root/taichi.py", file.absolutePath)
+                        val result = Runtime.getRuntime().exec(pythonCommands).inputStream.readBytes()
+                            .toString(Charset.defaultCharset())
+                        log.debug(result)
+                        sendMessageToDevGroup(DevLog("uploadToTaichi", result), log)
+                    }
 
                 }else {
                     log.debug("下载更新 ${checkUpdateData.short_version} 失败: ${downloadResponse.status.description}")
