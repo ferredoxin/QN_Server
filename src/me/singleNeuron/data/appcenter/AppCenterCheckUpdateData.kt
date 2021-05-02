@@ -13,7 +13,8 @@ data class AppCenterCheckUpdateData(
         val uploaded_at:String = "",
         val download_url:String = "",
         var release_notes:String = "",
-        val status:String = ""
+        val status:String = "",
+        val distribution_group_id:String = "",
 ):MarkdownAble, HtmlAble {
     override fun toString(): String {
         val stringBuilder = StringBuilder()
@@ -31,7 +32,11 @@ data class AppCenterCheckUpdateData(
         stringBuilder.append("Build ID: `$id`\n")
         stringBuilder.append("Time: `$uploaded_at`\n")
         stringBuilder.append("\n$release_notes\n")
-        stringBuilder.append("\n#QNotified更新 #unstable")
+        if (isBeta()) {
+            stringBuilder.append("\n#QNotified更新")
+        } else {
+            stringBuilder.append("\n#QNotified更新 #unstable")
+        }
         return stringBuilder.toString()
     }
 
@@ -42,7 +47,19 @@ data class AppCenterCheckUpdateData(
         stringBuilder.append("Build ID: <code>$id</code>\n")
         stringBuilder.append("Time: <code>$uploaded_at</code>\n")
         stringBuilder.append("\n${processHtmlChar(release_notes)}\n")
-        stringBuilder.append("\n#QNotified #unstable")
+        if (isBeta()) {
+            stringBuilder.append("\n#QNotified更新")
+        } else {
+            stringBuilder.append("\n#QNotified更新  #unstable")
+        }
         return stringBuilder.toString()
+    }
+
+    private fun isBeta():Boolean {
+        return distribution_group_id == "8a11cc3e-47da-4e3b-84e7-ac306a128aaf"
+    }
+
+    fun targetChannel():String {
+        return if (isBeta()) "@QNotified" else "@QNotified_CI"
     }
 }
